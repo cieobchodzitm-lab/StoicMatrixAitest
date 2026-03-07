@@ -4,9 +4,10 @@ import { KVExample } from './examples/kvStore'
 import { OSExample } from './examples/osInfo'
 import { UIExample } from './examples/uiExamples'
 import { AIExample } from './examples/aiChat'
+import { SystemStatusExample } from './examples/systemStatus'
 import { useState, type ComponentType } from 'react'
 
-type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai'
+type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status'
 
 type Tab = {
   id: TabId
@@ -39,6 +40,12 @@ const tabs: Tab[] = [
     label: 'AI chat',
     description: 'Prompt Puter AI and see replies',
     Component: AIExample
+  },
+  {
+    id: 'status',
+    label: 'System status',
+    description: 'StoicMatrix service health',
+    Component: SystemStatusExample
   },
   {
     id: 'ui',

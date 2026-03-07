@@ -214,6 +214,80 @@ pre {
   border-color: var(--callout-border);
 }
 
+.service-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.service-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+
+.service-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.service-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.service-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.service-desc {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.service-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.badge-ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.badge-fail {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.badge-checking {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
+
+.badge-idle {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+}
+
+.badge-info {
+  background: rgba(100, 108, 255, 0.15);
+  color: #646cff;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --panel-bg: #f7f9ff;
