@@ -1,0 +1,11 @@
+services:
+  crisis-agents:
+    env_file:
+      - .env
+    environment:
+      - AGENTOPS_API_KEY=${AGENTOPS_API_KEY}
+      - AGENTOPS_APP_NAME=${AGENTOPS_APP_NAME}
+      - AGENTOPS_ENV=${AGENTOPS_ENV}
+      - CRISIS_INTERVAL_SEC=${CRISIS_INTERVAL_SEC}
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - OLLAMA_PORT=${OLLAMA_PORT}
