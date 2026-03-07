@@ -4,9 +4,10 @@ import { KVExample } from './examples/kvStore'
 import { OSExample } from './examples/osInfo'
 import { UIExample } from './examples/uiExamples'
 import { AIExample } from './examples/aiChat'
+import { SystemStatusExample } from './examples/systemStatus'
 import { useState, type ComponentType } from 'react'
 
-type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai'
+type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status'
 
 type Tab = {
   id: TabId
@@ -45,6 +46,12 @@ const tabs: Tab[] = [
     label: 'UI helpers',
     description: 'File picker example',
     Component: UIExample
+  },
+  {
+    id: 'status',
+    label: 'System status',
+    description: 'StoicMatrix service health',
+    Component: SystemStatusExample
   }
 ]
 
