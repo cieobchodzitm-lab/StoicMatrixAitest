@@ -11,7 +11,7 @@ const getDemoPath = () => {
 const getErrorMessage = (error: unknown) => error instanceof Error ? error.message : String(error)
 
 export const FileSystemExample = () => {
-  const demoPath = useMemo(getDemoPath, [])
+  const demoPath = useMemo(() => getDemoPath(), [])
   const [status, setStatus] = useState<string>('Idle')
   const [fileContents, setFileContents] = useState<string>('')
 
