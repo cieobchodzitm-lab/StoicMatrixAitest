@@ -5,9 +5,10 @@ import { OSExample } from './examples/osInfo'
 import { UIExample } from './examples/uiExamples'
 import { AIExample } from './examples/aiChat'
 import { SystemStatusExample } from './examples/systemStatus'
+import { WalletPanel } from './components/WalletPanel'
 import { useState, type ComponentType } from 'react'
 
-type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status'
+type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status' | 'wallet'
 
 type Tab = {
   id: TabId
@@ -52,6 +53,12 @@ const tabs: Tab[] = [
     label: 'System status',
     description: 'StoicMatrix service health',
     Component: SystemStatusExample
+  },
+  {
+    id: 'wallet',
+    label: 'AGORA MUNDI',
+    description: 'L7 wallet & Phantom withdrawal',
+    Component: () => <WalletPanel userId="demo-user" />
   }
 ]
 
