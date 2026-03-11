@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    ports:
+      - "7860:7860"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://cnota:cnota@postgres:5432/cnota}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+    depends_on:
+      - postgres
+      - ollama
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: cnota
+      POSTGRES_PASSWORD: cnota
+      POSTGRES_DB: cnota
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
+volumes:
+  postgres_data:
+  ollama_data:
+  chroma_data:

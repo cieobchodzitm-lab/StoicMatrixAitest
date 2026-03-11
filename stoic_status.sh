@@ -71,7 +71,7 @@ else
   warn "Solana RPC binary not found at $RPC_BIN (set STOIC_SOLANA_BIN to override)"
 fi
 
-echo ""
+echo ""https://github.com/cieobchodzitm-lab/StoicMatrixAitest/pull/2/conflict?name=src%252Fexamples%252FsystemStatus.tsx&base_oid=df51e0ac3fdfea173b36e3526ab0b5fe402df65b&head_oid=ea4d5679dc971c754634ba15d844f1ee8b692422
 echo "──────────────────────────────────────────────────"
 echo "  Done. Fix any 🔴 items above before deploying."
 echo ""
