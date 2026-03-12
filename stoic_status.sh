@@ -1,56 +1,77 @@
 #!/usr/bin/env bash
-# stoic_status.sh – StoicMatrix AI system quick-status report
+# stoic_status.sh — one-shot StoicMatrix system status report
 # Usage: bash stoic_status.sh
 
 set -euo pipefail
 
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+YELLOW='\033[1;33m'
+RESET='\033[0m'
 
-check() {
-  local label="$1"
-  local cmd="$2"
-  if eval "$cmd" &>/dev/null; then
-    printf "  ${GREEN}🟢 %-25s OK${NC}\n" "$label"
+ok()   { printf "  ${GREEN}🟢 OK${RESET}     %s\n" "$1"; }
+fail() { printf "  ${RED}🔴 FAIL${RESET}   %s\n" "$1"; }
+warn() { printf "  ${YELLOW}🟡 WARN${RESET}   %s\n" "$1"; }
+
+check_http() {
+  local label="$1" url="$2"
+  if curl -sf --max-time 3 "$url" > /dev/null 2>&1; then
+    ok "$label ($url)"
   else
-    printf "  ${RED}🔴 %-25s UNREACHABLE${NC}\n" "$label"
+    fail "$label — unreachable at $url"
+  fi
+}
+
+check_port() {
+  local label="$1" host="$2" port="$3"
+  if (echo > /dev/tcp/"$host"/"$port") 2>/dev/null; then
+    ok "$label (${host}:${port})"
+  else
+    fail "$label — port ${port} not open on ${host}"
   fi
 }
 
 echo ""
-echo "╔══════════════════════════════════════╗"
-echo "║     StoicMatrix AI – Status Report   ║"
-echo "╚══════════════════════════════════════╝"
-echo "  $(date '+%Y-%m-%d %H:%M:%S %Z')"
+echo "╔══════════════════════════════════════════════════╗"
+echo "║       StoicMatrix — System Status Report         ║"
+echo "╚══════════════════════════════════════════════════╝"
+echo "  Generated: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 echo ""
 
-echo "── Services ─────────────────────────────"
-check "Memory5 API   :8080"  "curl -sf http://localhost:8080/health"
-check "PostgreSQL     :5432"  "pg_isready -h localhost -p 5432 -U postgres"
-check "Ollama         :11434" "curl -sf http://localhost:11434/api/tags"
-check "Chroma         :8000"  "curl -sf http://localhost:8000/api/v1/heartbeat"
+echo "── Services ──────────────────────────────────────"
+check_http "Memory5 API (Spring Boot)" "http://localhost:8080/health"
+check_port "PostgreSQL"                "localhost" 5432
+check_http "Ollama (qwen:latest)"      "http://localhost:11434"
+check_http "Chroma (vector store)"     "http://localhost:8000"
 
 echo ""
-echo "── Docker containers ────────────────────"
+echo "── Docker containers ─────────────────────────────"
 if command -v docker &>/dev/null; then
-  docker ps --format "  {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || \
-    printf "  ${YELLOW}docker ps failed (daemon not running?)${NC}\n"
+  docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || warn "docker ps failed"
 else
-  printf "  ${YELLOW}docker not found on PATH${NC}\n"
+  warn "Docker not found — skipping container check"
 fi
 
 echo ""
-echo "── Crisis Agents (last 5 log lines) ─────"
-COMPOSE_FILE="$HOME/.stoic-matrix/l7-bridge/docker-compose.yml"
-if [ -f "$COMPOSE_FILE" ]; then
-  docker-compose -f "$COMPOSE_FILE" logs --tail=5 crisis-agents 2>/dev/null || \
-    printf "  ${YELLOW}Could not fetch crisis-agent logs${NC}\n"
+echo "── Crisis Agents logs (last 10 lines) ────────────"
+BRIDGE_DIR="${STOIC_BRIDGE_DIR:-${HOME}/.stoic-matrix/l7-bridge}"
+if [ -d "$BRIDGE_DIR" ]; then
+  docker-compose -f "$BRIDGE_DIR/docker-compose.yml" logs --tail=10 crisis-agents 2>/dev/null \
+    || warn "Could not fetch crisis-agents logs from $BRIDGE_DIR"
 else
-  printf "  ${YELLOW}Compose file not found at %s${NC}\n" "$COMPOSE_FILE"
+  warn "Bridge dir not found: $BRIDGE_DIR (set STOIC_BRIDGE_DIR to override)"
 fi
 
 echo ""
-echo "── Done ─────────────────────────────────"
+echo "── Solana RPC client ─────────────────────────────"
+RPC_BIN="${STOIC_SOLANA_BIN:-${HOME}/.stoic-matrix/solana-rpc/target/release/solana-rpc}"
+if [ -x "$RPC_BIN" ]; then
+  ok "Solana RPC binary present ($(du -sh "$RPC_BIN" | cut -f1))"
+else
+  warn "Solana RPC binary not found at $RPC_BIN (set STOIC_SOLANA_BIN to override)"
+fi
+
+echo ""https://github.com/cieobchodzitm-lab/StoicMatrixAitest/pull/2/conflict?name=src%252Fexamples%252FsystemStatus.tsx&base_oid=df51e0ac3fdfea173b36e3526ab0b5fe402df65b&head_oid=ea4d5679dc971c754634ba15d844f1ee8b692422
+echo "──────────────────────────────────────────────────"
+echo "  Done. Fix any 🔴 items above before deploying."
 echo ""
