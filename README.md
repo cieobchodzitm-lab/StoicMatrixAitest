@@ -1,75 +1,88 @@
-# React + TypeScript + Vite
+---
+title: L7 Rzeczpospolita CNOTA Dashboard
+emoji: ⚖️
+colorFrom: yellow
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# L7 Rzeczpospolita CNOTA — Virtue Governance Dashboard
 
-Currently, two official plugins are available:
+A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virtue scoring, NFT passports, and on-chain governance metrics.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Virtue Radar** — Radar chart visualizing four Stoic virtues (Sophia, Andreia, Dikaiosyne, Sophrosyne)
+- **Score Bars** — Individual virtue progress bars and profile card
+- **NFT Passport** — ERC-1155 passport card with on-chain mint button
+- **Leaderboard** — Paginated rankings with per-virtue sorting
+- **Dark Stoic Theme** — Cinzel serif, gold accents on dark gray
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Architecture
 
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+.
+├── Dockerfile          # Multi-stage: Node 18 build → Python 3.11 runtime
+├── docker-compose.yml  # Local dev stack (Postgres, Ollama, Chroma)
+├── deploy_to_hf.sh     # One-command HuggingFace Spaces deployment
+├── .env.example        # All 72 environment variables documented
+├── backend/            # FastAPI + SQLAlchemy
+│   ├── main.py
+│   ├── requirements.txt
+│   └── routers/
+│       ├── health.py           # GET /api/health
+│       ├── cnota.py            # /api/cnota/{profile,leaderboard,score,stats}
+│       ├── passport.py         # /api/passport/{id,metadata,mint}
+│       └── rewards_processor.py # Virtue→NFT mint pipeline
+└── frontend/           # React 18 + Vite + Chart.js
+    ├── src/
+    │   ├── App.jsx
+    │   └── components/
+    │       ├── Layout.jsx
+    │       ├── Dashboard.jsx
+    │       ├── PassportView.jsx
+    │       └── LeaderboardView.jsx
+    └── package.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Local Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Start full stack
+docker compose up
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Frontend only
+cd frontend && npm install && npm run dev
+
+# Backend only
+cd backend && pip install -r requirements.txt && python main.py
 ```
+
+## Deploy to HuggingFace Spaces
+
+```bash
+export HF_TOKEN="hf_your_token_here"
+chmod +x deploy_to_hf.sh
+./deploy_to_hf.sh cieobchodzitm l7-cnota-dashboard
+```
+
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Service health status |
+| GET | `/api/cnota/profile/{user_id}` | Virtue profile |
+| GET | `/api/cnota/leaderboard` | Top 100 leaderboard |
+| POST | `/api/cnota/score` | Calculate score |
+| GET | `/api/passport/{user_id}` | NFT passport data |
+| POST | `/api/passport/mint` | Queue NFT mint |
+| GET | `/api/passport/{user_id}/metadata` | ERC-1155 metadata |
+
+## HF Spaces Constraints
+
+- `USER user:1000` — UID 1000 required
+- `EXPOSE 7860` — Fixed port
+- `sdk: docker` + `app_port: 7860` in README frontmatter
