@@ -3,6 +3,7 @@ import Layout from './components/Layout.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import PassportView from './components/PassportView.jsx'
 import LeaderboardView from './components/LeaderboardView.jsx'
+import VirtueLogView from './components/VirtueLogView.jsx'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/passport" element={<PassportView />} />
           <Route path="/leaderboard" element={<LeaderboardView />} />
+          <Route path="/virtue-log" element={<VirtueLogView />} />
         </Routes>
       </Layout>
     </BrowserRouter>

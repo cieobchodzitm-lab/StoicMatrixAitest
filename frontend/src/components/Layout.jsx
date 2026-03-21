@@ -5,6 +5,7 @@ const navItems = [
   { path: '/', label: 'Dashboard', icon: '⚖️' },
   { path: '/passport', label: 'Passport', icon: '🏛️' },
   { path: '/leaderboard', label: 'Leaderboard', icon: '📜' },
+  { path: '/virtue-log', label: 'Virtue Log', icon: '🧭' },
 ]
 
 function Layout({ children }) {

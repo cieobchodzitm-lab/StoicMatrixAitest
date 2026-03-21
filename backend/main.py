@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
-from routers import health, cnota, passport, rewards_processor
+from routers import cnota, health, passport, rewards_processor, virtue_log
 
 load_dotenv()
 
@@ -32,6 +32,7 @@ app.include_router(health.router)
 app.include_router(cnota.router)
 app.include_router(passport.router)
 app.include_router(rewards_processor.router)
+app.include_router(virtue_log.router)
 
 FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
 
