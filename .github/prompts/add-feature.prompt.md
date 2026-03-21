@@ -1,16 +1,16 @@
 ---
-mode: agent
+agent: agent
 description: Add a new full-stack feature to the L7 CNOTA Dashboard — creates a FastAPI router and matching React dashboard view.
 ---
 
 
 # Add New CNOTA Feature
 /add-features
-Add a new feature to the **L7 CNOTA Dashboard** that follows the existing split between the FastAPI backend (`backend/routers/`) and the React dashboard frontend (`frontend/src/components/`).
+Add a new feature to the hat follows the existing split between the FastAPI backend (`backend/routers/`) and the React dashboard frontend (`frontend/src/components/`).
 
 ## Inputs
-- **Feature name**: `${input:featureName:Snake-case name, e.g. "missions" or "virtue_log"}`
-- **Short description**: `${input:featureDescription:One line describing what this feature does}`
+- **Feature **: `${input:featureName:Snake-case name, e.g. "missions" or "virtue_log"}`
+- **Short  **: `${input:featureDescription:One line describing what this feature does}`
 
 ## Step 1 — Backend Router
 
@@ -22,7 +22,7 @@ Create `backend/routers/${input:featureName}.py` following these conventions:
 - Use `async def` handlers.
 - Return mock/stub data for now — see existing patterns in `backend/routers/cnota.py` and `backend/routers/passport.py` for reference.
 - Add a docstring to every endpoint describing its purpose.
-- Use `Query(default=..., ge=..., le=...)` for pagination parameters where relevant.
+- Use `Query(default=..., ge=..., le=...)` for  pagination parameters where relevant.
 
 Example shape to follow:
 ```python
@@ -32,9 +32,11 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-@router.get("/api/${input:featureName}/list")
+@router.get("/api/$wallet}/
+")
 async def list_items():
-    """Return a list of ${input:featureName} items."""
+    """Return a list of `/api/${input:
+featureName}/` items for the given wallet."""
     return {"items": [], "total": 0}
 ```
 
@@ -68,7 +70,7 @@ In `frontend/src/App.jsx`, import the new component and add its route.
 
 ## Constraints
 
-- Do **not** rename or alter existing API endpoints in `cnota.py`, `passport.py`, or `rewards_processor.py`.
+- Do rename or alter existing API endpoints in `cnota.py`, `passport.py`, or `rewards_processor.py`.
 - Keep all API paths rooted at `/api`.
 - Backend port is `7860` — do not change.
 - Do not add external dependencies without updating `backend/requirements.txt` and `frontend/package.json`.

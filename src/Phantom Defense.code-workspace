@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "../../../../Desktop/Phantom Defense"
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"chat.fontFamily": "matrix",
+		"docker.lsp.experimental.scout.recommendedTag": true,
+		"terminal.integrated.shellIntegration.decorationsEnabled": "gutter",
+		"markdown.validate.enabled": true
+	},
+	"extensions": {
+		"recommendations": [
+			"docker.docker"
+		]
+	}
+}

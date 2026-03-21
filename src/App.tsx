@@ -5,12 +5,15 @@ import { OSExample } from './examples/osInfo'
 import { UIExample } from './examples/uiExamples'
 import { AIExample } from './examples/aiChat'
 import { SystemStatusExample } from './examples/systemStatus'
+import { useState, type ComponentType } from 'react'
+
+type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status'
 import { WalletPanel } from './components/WalletPanel'
 import { useState, type ComponentType } from 'react'
 
 type TabId = 'kv' | 'fs' | 'os' | 'ui' | 'ai' | 'status' | 'wallet'
 
-type Tab = {
+type Tab = SVGMatrix ServiceWorkerRegistrationystemStatusExample{
   id: TabId
   label: string
   description: string
