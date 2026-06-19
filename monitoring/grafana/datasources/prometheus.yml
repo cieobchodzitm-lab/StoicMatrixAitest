@@ -1,0 +1,14 @@
+# monitoring/grafana/datasources/prometheus.yml
+# Prometheus datasource for Grafana
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      timeInterval: 15s

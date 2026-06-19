@@ -1,44 +1,179 @@
-version: "3.9"
+# docker-compose.yml
+# 🐳 Optimized Docker Compose with Redis, PostgreSQL, Prometheus
+
+version: '3.8'
 
 services:
-  app:
-    build: .
-    ports:
-      - "7860:7860"
-    environment:
-      - DATABASE_URL=${DATABASE_URL:-postgresql://cnota:cnota@postgres:5432/cnota}
-      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.devnet.solana.com}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
-    depends_on:
-      - postgres
-      - ollama
-
+  # PostgreSQL with optimization
   postgres:
     image: postgres:15-alpine
+    container_name: stoic-postgres
     environment:
-      POSTGRES_USER: cnota
-      POSTGRES_PASSWORD: cnota
-      POSTGRES_DB: cnota
+      POSTGRES_USER: stoic_user
+      POSTGRES_PASSWORD: stoic_password
+      POSTGRES_DB: stoic_db
+      POSTGRES_INITDB_ARGS: |-
+        -c max_connections=100
+        -c shared_buffers=256MB
+        -c effective_cache_size=1GB
+        -c maintenance_work_mem=64MB
+        -c checkpoint_completion_target=0.9
+        -c wal_buffers=16MB
+        -c default_statistics_target=100
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stoic_user -d stoic_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stoic-network
 
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: stoic-redis
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --save 60 1000
     volumes:
-      - ollama_data:/root/.ollama
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stoic-network
 
+  # ChromaDB for vector search
   chroma:
     image: chromadb/chroma:latest
+    container_name: stoic-chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/data
+    volumes:
+      - chroma_data:/chroma/data
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - stoic-network
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: stoic-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
     volumes:
-      - chroma_data:/chroma/chroma
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - stoic-network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: stoic-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - stoic-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stoic-backend
+    environment:
+      DATABASE_URL: postgresql://stoic_user:stoic_password@postgres:5432/stoic_db
+      REDIS_URL: redis://redis:6379/0
+      CHROMA_HOST: chroma
+      CHROMA_PORT: 8000
+      OLLAMA_URL: http://ollama:11434
+      DEBUG: "false"
+    ports:
+      - "7860:7860"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend/dist:/app/frontend/dist
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    resources:
+      limits:
+        cpus: '2'
+        memory: 4G
+      reservations:
+        cpus: '1'
+        memory: 2G
+    networks:
+      - stoic-network
+
+  # Ollama for embeddings
+  ollama:
+    image: ollama/ollama:latest
+    container_name: stoic-ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - stoic-network
 
 volumes:
   postgres_data:
-  ollama_data:
+  redis_data:
   chroma_data:
+  prometheus_data:
+  grafana_data:
+  ollama_data:
+
+networks:
+  stoic-network:
+    driver: bridge

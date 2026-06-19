@@ -1,0 +1,66 @@
+# monitoring/alert_rules.yml
+# Prometheus Alert Rules for StoicMatrix
+
+groups:
+  - name: stoic_matrix_alerts
+    interval: 30s
+    rules:
+      # API Performance Alerts
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, http_request_duration_seconds) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency detected"
+          description: "P95 API latency is above 1 second"
+
+      - alert: HighErrorRate
+        expr: (rate(api_errors_total[5m]) / rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate"
+          description: "Error rate is above 5%"
+
+      # Database Alerts
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, db_query_duration_seconds) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database query latency"
+          description: "P95 query latency is above 500ms"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: db_connections_active / db_connection_pool_size > 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool near capacity"
+          description: "Active connections are above 80% of pool size"
+
+      # Cache Alerts
+      - alert: LowCacheHitRate
+        expr: |
+          rate(cache_hits_total[5m]) / 
+          (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m])) < 0.6
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is below 60%"
+
+      # Memory Alerts
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes > 3.5 * 1024 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Application memory usage exceeds 3.5GB"
