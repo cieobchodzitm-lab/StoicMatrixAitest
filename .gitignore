@@ -45,3 +45,7 @@ env/
 # Frontend build
 frontend/dist/
 frontend/node_modules/
+
+dist-packages/
+*.zip
+

@@ -51,14 +51,17 @@ A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virt
 ## Local Development
 
 ```bash
-# Start full stack
-docker compose up
+# App only (recommended first smoke test)
+docker compose up --build app postgres
+
+# Full stack (Ollama + Chroma too)
+docker compose --profile full up --build
 
 # Frontend only
-cd frontend && npm install && npm run dev
+cd frontend && npm ci && npm run dev
 
-# Backend only
-cd backend && pip install -r requirements.txt && python main.py
+# Backend only (Python 3.11 recommended)
+cd backend && pip install -r requirements.txt && python main.py --port 7860
 ```
 
 ## Deploy to HuggingFace Spaces
@@ -67,6 +70,19 @@ cd backend && pip install -r requirements.txt && python main.py
 export HF_TOKEN="hf_your_token_here"
 chmod +x deploy_to_hf.sh
 ./deploy_to_hf.sh cieobchodzitm l7-cnota-dashboard
+```
+
+### Windows (PowerShell)
+
+```powershell
+$env:HF_TOKEN = "hf_your_token_here"
+.\deploy_to_hf.ps1 -HfUser cieobchodzitm -RepoName l7-cnota-dashboard
+```
+
+### Create offline deployment zip
+
+```powershell
+.\scripts\create-deployment-package.ps1
 ```
 
 ## API Endpoints
