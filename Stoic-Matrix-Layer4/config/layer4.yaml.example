@@ -1,0 +1,21 @@
+# Stoic-Matrix-Layer4 configuration example
+# Copy this file to layer4.yaml and adjust for your environment.
+
+event_bus:
+  backend: redis          # redis | memory
+  host: localhost
+  port: 6379
+  channel_prefix: stoic.l4
+
+persistence:
+  db_url: postgresql://stoic:stoic@localhost:5432/stoic
+  pool_size: 5
+  echo_sql: false
+
+protocol_bridge:
+  rpc_url: http://localhost:8899   # Solana RPC
+  commitment: confirmed
+
+stream_processor:
+  batch_size: 50
+  flush_interval_sec: 5
