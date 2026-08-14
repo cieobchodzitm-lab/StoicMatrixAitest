@@ -11,8 +11,8 @@ license: mit
 
 # L7 Rzeczpospolita CNOTA — Virtue Governance Dashboard
 
-> **Last sync**: 2026-08-14 16:40 CEST by `agt-stoic-matrix-ai`  
-> PR #16 (deployment package) merged · status clean
+> **Last sync**: 2026-08-14 16:50 CEST by `agt-stoic-matrix-ai`  
+> Virtue Passport bridge introduced · the-bridge-virtue-nft Program ID set · PR #16 merged
 
 A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virtue scoring, NFT passports, and on-chain governance metrics.
 
@@ -20,7 +20,8 @@ A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virt
 
 - **Virtue Radar** — Radar chart visualizing four Stoic virtues (Sophia, Andreia, Dikaiosyne, Sophrosyne)
 - **Score Bars** — Individual virtue progress bars and profile card
-- **NFT Passport** — ERC-1155 passport card with on-chain mint button
+- **NFT Passport** — ERC-1155 / Solana passport card with on-chain mint button
+- **Virtue Passport Gate** — Mint requires verified `AGT-VIRTUE-PASSPORT-v1` (TRUSTED stage)
 - **Leaderboard** — Paginated rankings with per-virtue sorting
 - **Dark Stoic Theme** — Cinzel serif, gold accents on dark gray
 
@@ -35,10 +36,12 @@ A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virt
 ├── backend/            # FastAPI + SQLAlchemy
 │   ├── main.py
 │   ├── requirements.txt
+│   ├── services/
+│   │   └── passport_bridge.py   # Ed25519 verification + TRUSTED gate
 │   └── routers/
 │       ├── health.py           # GET /api/health
 │       ├── cnota.py            # /api/cnota/{profile,leaderboard,score,stats}
-│       ├── passport.py         # /api/passport/{id,metadata,mint}
+│       ├── passport.py         # /api/passport/{id,metadata,mint} (gated)
 │       └── rewards_processor.py # Virtue→NFT mint pipeline
 └── frontend/           # React 18 + Vite + Chart.js
     ├── src/
@@ -50,6 +53,17 @@ A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virt
     │       └── LeaderboardView.jsx
     └── package.json
 ```
+
+## Virtue Passport Integration
+
+Mint endpoint now accepts an optional `signed_passport` (output of `phantom-crypto-core` sign-passport.js).
+
+1. Domain `AGT-VIRTUE-PASSPORT-v1` must match
+2. Required fields + freshness window (15 min)
+3. `agentClass` must be `TRUSTED` / `COUNCIL` / `META_JURY` / `DEFENDER`
+4. Only then is a mint payload prepared for `the-bridge-virtue-nft`
+
+Without a signed passport the endpoint remains backward-compatible (demo queue).
 
 ## Local Development
 
@@ -97,7 +111,7 @@ $env:HF_TOKEN = "hf_your_token_here"
 | GET | `/api/cnota/leaderboard` | Top 100 leaderboard |
 | POST | `/api/cnota/score` | Calculate score |
 | GET | `/api/passport/{user_id}` | NFT passport data |
-| POST | `/api/passport/mint` | Queue NFT mint |
+| POST | `/api/passport/mint` | Queue NFT mint (gated by signed passport) |
 | GET | `/api/passport/{user_id}/metadata` | ERC-1155 metadata |
 
 ## HF Spaces Constraints
