@@ -1,0 +1,23 @@
+{
+  "id": "audit-2026-08-14-HSA001-mint-blueprint-001",
+  "timestamp": "2026-08-14T22:30:00.000Z",
+  "layer": "L4_GOVERNANCE",
+  "propositionId": "L4_GOVERNANCE_VIRTUE_PASSPORT_MINT_GATES",
+  "status": "COMPLIANT",
+  "manipulationScore": 0.12,
+  "harmLevel": "COMPLIANT",
+  "evidenceHash": "53d55933462d875e46b230a583a05d899a2a253b38c5a52ce5b73efccd98a842",
+  "trace": "L4-AUDIT::refine-mint-blueprint::L4_GOVERNANCE::COMPLIANT::HSA-001 Virtue Passport Metaplex Core",
+  "enforcementBinding": {
+    "action": "ALLOW",
+    "log": true,
+    "flag": false
+  },
+  "agentClass": "DIAKON_L7",
+  "notes": "Refinement of live Mint Blueprint against AGT L7 architecture. Required hardening: on-chain virtue_score threshold, PDA-only mint authority, progressive Localnet→Devnet→Mainnet brakes with Council 7/11 + time-lock, emission of Assembly-usable attributes.",
+  "auditHash": {
+    "algorithm": "SHA3-256",
+    "digest": "53d55933462d875e46b230a583a05d899a2a253b38c5a52ce5b73efccd98a842",
+    "note": "Frozen for Registry.sol"
+  }
+}
