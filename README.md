@@ -11,6 +11,9 @@ license: mit
 
 # L7 Rzeczpospolita CNOTA — Virtue Governance Dashboard
 
+> **Last sync**: 2026-08-14 16:40 CEST by `agt-stoic-matrix-ai`  
+> PR #16 (deployment package) merged · status clean
+
 A full-stack dashboard for the L7 Stoic Virtue Governance system, combining virtue scoring, NFT passports, and on-chain governance metrics.
 
 ## Features
